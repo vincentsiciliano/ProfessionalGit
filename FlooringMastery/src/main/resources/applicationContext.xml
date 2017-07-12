@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+          http://www.springframework.org/schema/beans/spring-beans.xsd
+          http://www.springframework.org/schema/mvc
+          http://www.springframework.org/schema/mvc/spring-mvc.xsd
+          http://www.springframework.org/schema/tx
+          http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+          http://www.springframework.org/schema/context
+          http://www.springframework.org/schema/context/spring-context.xsd
+          http://www.springframework.org/schema/aop  
+          http://www.springframework.org/schema/aop/spring-aop-3.2.xsd">
+    
+    <bean id="io" class="com.sg.flooringmastery.ui.UserIOConsoleImpl"/>
+    
+    <bean id="view" class="com.sg.flooringmastery.ui.FlooringView">
+        <constructor-arg ref="io"/>
+    </bean>
+    
+    <bean id="orderDao" class="com.sg.flooringmastery.dao.FlooringOrderDaoImpl"/>
+    
+    <bean id="trainingOrderDao" class="com.sg.flooringmastery.dao.FlooringOrderTrainingDaoImpl"/>
+    
+    <bean id="taxDao" class="com.sg.flooringmastery.dao.FlooringTaxDaoImpl"/>
+
+    <bean id="productDao" class="com.sg.flooringmastery.dao.FlooringProductDaoImpl"/>
+    
+    <bean id="orderService" class="com.sg.flooringmastery.service.FlooringOrderServiceImpl">
+        <constructor-arg ref="orderDao"/>
+    </bean>
+    
+    <bean id="taxService" class="com.sg.flooringmastery.service.FlooringTaxServiceImpl">
+        <constructor-arg ref="taxDao"/>
+    </bean>
+    
+    <bean id="productService" class="com.sg.flooringmastery.service.FlooringProductServiceImpl">
+        <constructor-arg ref="productDao"/>
+    </bean>
+    
+    <bean id="auditDao" class="com.sg.flooringmastery.dao.FlooringAuditDaoImpl"/>
+
+    <bean id="loggingAdvice" class="com.sg.flooringmastery.advice.LoggingAdvice">
+        <constructor-arg ref="auditDao"/>
+    </bean>
+    
+    <bean id="controller" class="com.sg.flooringmastery.controller.Controller">
+        <constructor-arg ref="view"/>
+        <constructor-arg ref="orderService"/>
+        <constructor-arg ref="taxService"/>
+        <constructor-arg ref="productService"/>
+    </bean>    
+    
+    <aop:config>
+        <aop:aspect ref="loggingAdvice">
+            <aop:after-returning method="createAuditEntry" pointcut="execution(* com.sg.flooringmastery.dao.FlooringOrderDaoImpl.addOrder(..))" />
+            <aop:after-returning method="createAuditEntry" pointcut="execution(* com.sg.flooringmastery.dao.FlooringOrderDaoImpl.removeOrder(..))" />
+            <aop:after-returning method="createAuditEntry" pointcut="execution(* com.sg.flooringmastery.dao.FlooringOrderDaoImpl.processNewEdit(..))" />
+            <aop:after-returning method="createAuditEntry" pointcut="execution(* com.sg.flooringmastery.dao.FlooringOrderDaoImpl.auditPreEdit(..))" />
+        </aop:aspect>
+    </aop:config>
+    
+
+    
+    
+</beans>
+

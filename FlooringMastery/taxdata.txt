@@ -1,0 +1,4 @@
+Indiana::6.00
+Ohio::6.25
+Minnesota::5.75
+Pennsylvania::6.75
